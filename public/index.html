@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Госпожо Counter — Радева & Цонева</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<main class="container">
+<h1>Колко пъти са казали "госпожо"</h1>
+
+
+<div class="cards">
+<div class="card" id="radeva-card">
+<h2>Г-жа Радева</h2>
+<div class="count" id="radeva-count">0</div>
+<button class="btn" data-who="radeva">Казаха "госпожо"</button>
+</div>
+
+
+<div class="card" id="tsoneva-card">
+<h2>Г-жа Цонева</h2>
+<div class="count" id="tsoneva-count">0</div>
+<button class="btn" data-who="tsoneva">Казаха "госпожо"</button>
+</div>
+</div>
+
+
+<div class="controls">
+<button id="reset">Нулирай</button>
+<div class="info">С връзка в реално време — всички клиенти виждат обновяванията веднага. Данните се пазят дори при рестарт.</div>
+</div>
+</main>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
