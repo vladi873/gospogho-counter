@@ -3,54 +3,41 @@ const http = require('http');
 const { Server } = require('socket.io');
 const fs = require('fs');
 
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+let counts = { radeva: 0, tsoneva: 0 };
+const DATA_FILE = 'data.json';
 
-const PORT = process.env.PORT || 3000;
+// Четене на данни от файл (ако съществуват)
+if (fs.existsSync(DATA_FILE)) {
+  counts = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+}
 
+function saveCounts() {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(counts, null, 2));
+}
 
-// Статични файлове
 app.use(express.static('public'));
 
-
-// Четене на данните от файла
-let counts;
-try {
-counts = JSON.parse(fs.readFileSync('data.json', 'utf8'));
-} catch (e) {
-counts = { radeva: 0, tsoneva: 0 };
-}
-
-
-// Функция за запис
-function saveCounts() {
-fs.writeFileSync('data.json', JSON.stringify(counts, null, 2));
-}
-
-
-// Socket.IO логика
 io.on('connection', (socket) => {
-socket.emit('state', counts);
+  socket.emit('state', counts);  // Изпраща текущото състояние на новия клиент
 
+  socket.on('increment', (who) => {
+    if (who === 'radeva') counts.radeva += 1;
+    if (who === 'tsoneva') counts.tsoneva += 1;
+    saveCounts();
+    io.emit('state', counts);  // Актуализира всички клиенти
+  });
 
-socket.on('increment', (who) => {
-if (who === 'radeva') counts.radeva += 1;
-if (who === 'tsoneva') counts.tsoneva += 1;
-saveCounts();
-io.emit('state', counts);
+  socket.on('reset', () => {
+    counts.radeva = 0;
+    counts.tsoneva = 0;
+    saveCounts();
+    io.emit('state', counts);
+  });
 });
 
-
-socket.on('reset', () => {
-counts.radeva = 0;
-counts.tsoneva = 0;
-saveCounts();
-io.emit('state', counts);
-});
-});
-
-
-server.listen(PORT, () => console.log(`Server running on http://vladi873:${PORT}`));
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
